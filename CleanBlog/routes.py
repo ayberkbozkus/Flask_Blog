@@ -1,13 +1,14 @@
 from CleanBlog.models import User, Post
 from flask import render_template, flash, redirect, url_for
 from CleanBlog import app, db
-from CleanBlog.forms import RegisterForm, LoginForm
-from flask_login import login_user, current_user, logout_user
+from CleanBlog.forms import PostForm, RegisterForm, LoginForm
+from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/")
 @app.route("/home")
 def index():
-    return render_template('index.html', title = 'HOME')
+    posts = Post.query.order_by(Post.id.desc()).all()
+    return render_template('index.html', title = 'HOME',posts = posts)
 
 @app.route("/about")
 def about():
@@ -52,11 +53,20 @@ def login():
     return render_template('login.html', title = 'LOGIN', form=form)
 
 @app.route("/logout")
+@login_required
 def logout():
     logout_user()
     flash(f'Logout successfully', 'success')
     return redirect(url_for('index'))
 
-@app.route("/post/new")
+@app.route("/post/new", methods=['GET','POST'])
+@login_required
 def new_post():
-    return render_template('create_post.html', title = 'Create Post')
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, subtitle=form.subtitle.data, post_text=form.post_text.data, user = current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash(f'Post is created', 'success')
+        return redirect(url_for('index'))
+    return render_template('create_post.html', title = 'Create Post', form=form)

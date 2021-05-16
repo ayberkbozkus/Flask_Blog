@@ -25,14 +25,15 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     title = db.Column(db.String, nullable=False)
     subtitle = db.Column(db.String, nullable=False)
-    post_date = db.Column(db.DateTime, nullable=False, default = datetime.now().strftime('%Y-%m-%d'))
+    post_date = db.Column(db.DateTime, nullable=False, default = datetime.now) # ().strftime('%Y-%m-%d')
     post_text = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    def __init__(self, title, subtitle, post_text):
+    def __init__(self, title, subtitle, post_text, user):
         self.title= title
         self.subtitle = subtitle
         self.post_text = post_text
+        self.user = user
 
     def __repr__(self):
         return f'User: {self.title}, {self.subtitle}'
