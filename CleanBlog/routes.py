@@ -1,7 +1,7 @@
 from flask.globals import request
 from CleanBlog.models import User, Post
 from flask import render_template, flash, redirect, url_for, abort, request
-from CleanBlog import app, db
+from CleanBlog import app, db, mail, Message
 from CleanBlog.forms import ContactForm, PostForm, RegisterForm, LoginForm
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -18,10 +18,24 @@ def index():
 def about():
     return render_template('about.html', title = 'ABOUT')
 
-@app.route("/contact")
+@app.route("/contact",methods=['GET','POST'])
 def contact():
     form = ContactForm()
-    return render_template('contact.html', title = 'CONTACT')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            msg = Message(form.name.data, sender ='Clean Blog Contact From', recipients=['flatformapp@gmail.com'])
+            msg.body = """
+            From: %s
+            <%s>
+            %s
+            """ % (form.email.data, form.phone.data, form.message.data)
+            mail.send(msg)
+            flash(f'We received your message succesfully', 'success')
+            return redirect(url_for('contact'))
+        else:
+            flash(f'OPS There is a problem', 'danger')
+    elif request.method == 'GET':
+        return render_template('contact.html', title = 'Contact', form=form)
 
 @app.route("/register", methods=['GET','POST'])
 def register():
@@ -34,7 +48,7 @@ def register():
         db.session.commit()
         flash(f'{form.name.data} account created', 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', title = 'REGISTER', form=form)
+    return render_template('register.html', title = 'Register', form=form)
 
 @app.route("/login", methods=['GET','POST'])
 def login():
