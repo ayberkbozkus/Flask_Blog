@@ -18,3 +18,10 @@ class PostForm(FlaskForm):
     subtitle = StringField('Subtitle', validators=[DataRequired()])
     post_text = TextAreaField('Post Text', validators=[DataRequired()])
     submit = SubmitField('Add Post')
+
+class ContactForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Phone Number', validators=[DataRequired()])
+    message_text = TextAreaField('Message', validators=[DataRequired()])
+    submit = SubmitField('Send')

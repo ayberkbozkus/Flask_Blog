@@ -2,14 +2,17 @@ from flask.globals import request
 from CleanBlog.models import User, Post
 from flask import render_template, flash, redirect, url_for, abort, request
 from CleanBlog import app, db
-from CleanBlog.forms import PostForm, RegisterForm, LoginForm
+from CleanBlog.forms import ContactForm, PostForm, RegisterForm, LoginForm
 from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/")
 @app.route("/home")
 def index():
-    posts = Post.query.order_by(Post.id.desc()).all()
-    return render_template('index.html', title = 'HOME',posts = posts)
+    page = request.args.get('page',1, type=int)
+    posts = Post.query.order_by(Post.id.desc()).paginate(page=page, per_page=3)
+    next_url = url_for('index',page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('index',page=posts.prev_num) if posts.has_prev else None
+    return render_template('index.html', title = 'HOME',posts = posts, next_url=next_url, prev_url=prev_url)
 
 @app.route("/about")
 def about():
@@ -17,6 +20,7 @@ def about():
 
 @app.route("/contact")
 def contact():
+    form = ContactForm()
     return render_template('contact.html', title = 'CONTACT')
 
 @app.route("/register", methods=['GET','POST'])
