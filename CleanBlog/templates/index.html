@@ -20,6 +20,20 @@
             <div class="row">
                 <div class="col-lg-8 col-md-10 mx-auto">
 
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                
+                                {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                                
+                            {% endif %}
+                        {% endwith %}
+
+                    
+
                     <div class="post-preview">
                         <a href="post.html">
                             <h2 class="post-title">Man must explore, and this is exploration at its greatest</h2>
